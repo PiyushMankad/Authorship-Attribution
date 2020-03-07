@@ -4,7 +4,7 @@ Created on Thu Mar 5 11:10:50 2020
 
 @author: mankadp
 """
-import os
+import os,re
 import pandas as pd
 import readability
 import numpy as np
@@ -21,10 +21,11 @@ def counting_features(texts):
     complexWordsCount = np.zeros(len(texts)).reshape(-1,1)
     longWordsCount = np.zeros(len(texts)).reshape(-1,1)
     syllablesCount = np.zeros(len(texts)).reshape(-1,1)
-#    type token ratio is the no of unique words divided by total words
+
+    # type token ratio is the no of unique words divided by total words
     typeTokenRatio = np.zeros(len(texts)).reshape(-1,1)
     wordCount = np.zeros(len(texts)).reshape(-1,1)
-    print(len(texts))
+
 
     for i,text in enumerate(texts):
 #        print(text)
@@ -50,15 +51,41 @@ def counting_features(texts):
     return featureCounts
 
 
-def remove_stopWords(texts):
+def preprocessing(texts):
+    nlp = spacy.load('en_core_web_sm', parse=True, tag=True, entity=True)
+    tokenizer = ToktokTokenizer()
+    stopword_list = nltk.corpus.stopwords.words('english')
+    cleanedText = []
 
+    for i,text in enumerate(texts):
+        # Lemmatization
+        text = nlp(text)
+        text = ' '.join([word.lemma_ if word.lemma_ != '-PRON-' else word.text for word in text])
 
-    for text in texts:
-        pass
+        # removes Special Characters
+        pattern = r'[^a-zA-z0-9\s]'
+        text = re.sub(pattern,"",str(text))
+#        print(text)
+
+        #seperates each word
+        tokens = tokenizer.tokenize(text)
+        # removes spaces in each words, if any
+        tokens = [token.strip() for token in tokens]
+        # filters stop words in tokens
+        filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
+        cleanedText.append(filtered_tokens)
+#        print(cleanedText)
+#        break
+        if i%500 == 0:
+            print("Steps Done:",i)
+
+    return cleanedText
 
 
 if __name__ == "__main__":
-    data = pd.read_csv("train.csv")
+
+    STEPS = 2000
+    data = pd.read_csv("train.csv").iloc[:STEPS,:]
 
     '''
     try:
@@ -75,23 +102,17 @@ if __name__ == "__main__":
 # =============================================================================
     # Consists of all the counted features
     featureCounts=counting_features(texts)
+    print("Feature Counts DONE!")
 # =============================================================================
 
 
 # =============================================================================
-    # Stop words Removal
+    # Lemmatization, Removing special characters, Stop words Removal
+    cleanedText = preprocessing(texts)
+    print("Text Cleaning DONE!")
 # =============================================================================
 
-    nlp = spacy.load('en_core_web_sm', parse=True, tag=True, entity=True)
-    #nlp_vec = spacy.load('en_vecs', parse = True, tag=True, #entity=True)
-    tokenizer = ToktokTokenizer()
-    stopword_list = nltk.corpus.stopwords.words('english')
 
-
-
-# =============================================================================
-#     Lemmatization of text
-# =============================================================================
 
 
 
