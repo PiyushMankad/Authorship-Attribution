@@ -92,8 +92,8 @@ if __name__ == "__main__":
         nltk.download('stopwords')
         os.system("python -m spacy download en_core_web_sm")
     except:
-    '''
         pass
+    '''
     '''
 
     feature = data.iloc[:,1]
