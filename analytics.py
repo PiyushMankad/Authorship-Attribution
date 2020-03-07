@@ -87,12 +87,12 @@ if __name__ == "__main__":
     STEPS = 2000
     data = pd.read_csv("train.csv").iloc[:STEPS,:]
 
-    '''
     try:
         os.system("pip install -r requirements.txt")
         nltk.download('stopwords')
         os.system("python -m spacy download en_core_web_sm")
     except:
+    '''
         pass
     '''
 
